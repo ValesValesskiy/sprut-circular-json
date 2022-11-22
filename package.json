@@ -2,7 +2,11 @@
   "name": "sprut-circular-json",
   "version": "1.0.1",
   "description": "Набор функций для работы с JSON с циклическими ссылками. ДАёт возможность перевести в строку, отправить куда следует, и восстановить объект в том же зацикленном виде",
-  "keywords": ["JSON", "circular", "циклические зависимости"],
+  "keywords": [
+    "JSON",
+    "circular",
+    "циклические зависимости"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ValesValesskiy/sprut-circular-json"
