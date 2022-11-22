@@ -9,12 +9,12 @@ function resolveCircular(object) {
 }
 
 function clearUseless(links, refs, usage) {
-    if (links && links.__isJSONCircularSource) {
+    if (links && links.__JSONCircularSource) {
         for(let prop in links.value) {
             links.value[prop] = clearUseless(links.value[prop], refs, usage);
         }
 
-        if (usage[links.ref]) {
+        if (usage[links.__JSONCircularSource]) {
             return links;
         } else {
             return links.value;
@@ -31,19 +31,17 @@ function linked(object, refs = {}, usage = {}) {
                 usage[ref] = true;
 
                 return [{
-                    __isJSONCircularRef: true,
-                    ref
+                    __JSONCircularRef: ref
                 }, refs, usage];
             }
         }
 
         const jsonDescriptor = {
             value: object instanceof Array ? [] : {},
-            ref: createRefName(),
-            __isJSONCircularSource: true
+            __JSONCircularSource: createRefName()
         };
 
-        refs[jsonDescriptor.ref] = object;
+        refs[jsonDescriptor.__JSONCircularSource] = object;
 
         for(let prop in object) {
             jsonDescriptor.value[prop] = linked(object[prop], refs, usage)[0];
@@ -70,8 +68,8 @@ function parse(str) {
 function restoreRefs(object) {
     const refs = {};
 
-    if (object && object.__isJSONCircularSource) {
-        refs[object.ref] = object.value;
+    if (object && object.__JSONCircularSource) {
+        refs[object.__JSONCircularSource] = object.value;
 
         for(let prop in object.value) {
             Object.assign(refs, restoreRefs(object.value[prop]));
@@ -87,9 +85,9 @@ function restoreObject(object, refs) {
             object[prop] = restoreObject(object[prop], refs);
         }
 
-        if (object.__isJSONCircularRef) {
-            return refs[object.ref];
-        } else if (object.__isJSONCircularSource) {
+        if (object.__JSONCircularRef) {
+            return refs[object.__JSONCircularRef];
+        } else if (object.__JSONCircularSource) {
             return object.value;
         } else {
             return object;

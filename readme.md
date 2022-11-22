@@ -4,9 +4,15 @@
 
 # Sprut-circular-json
 
-Набор функций для работы с JSON с циклическими ссылками. ДАёт возможность перевести в строку, отправить куда следует, и восстановить объект в том же зацикленном виде.
+Набор функций для работы с JSON с циклическими ссылками. Даёт возможность перевести в строку, отправить куда следует, и восстановить объект в том же зацикленном виде.
 
 ---
+
+<br>
+
+```
+В реппозитории есть patch_note.md с описанием изменений.
+```
 
 <br>
 
@@ -34,7 +40,7 @@ const str = CJSON.stringify(a);
 const copy_a = CJSON.parse(str);
 
 console.log(str);
-// {"value": {"prop": "value", "ref": {"__isJSONCircularRef": true, "ref": "166903917458093014"}}, "ref": "166903917458093014", "__isJSONCircularSource": true}
+// {"value": {"prop": "value", "ref": {"__JSONCircularRef": "166903917458093014"}}, "__JSONCircularSource": "166903917458093014"}
 
 console.log(a); // <ref *1> { prop: 'value', ref: [Circular *1] }
 
@@ -49,7 +55,7 @@ console.log(copy_a); // <ref *1> { prop: 'value', ref: [Circular *1] }
 
 <br>
 
-Также можно извлечь промежуточный преобразованный результат в js-объект до условного ```JSON.stringify(...)```. До преобразования в стркоу. Результат можно подложить куда угодно и работать уже с обычным ```JSON.stringify(...)```.
+Также можно извлечь промежуточный преобразованный результат в js-объект до условного ```JSON.stringify(...)```. До преобразования в строку. Результат можно подложить куда угодно и работать уже с обычным ```JSON.stringify(...)```.
 
 <br>
 
@@ -66,15 +72,14 @@ console.log(preString);
 // {
 //   value: {
 //     prop: 'value',
-//     ref: { __isJSONCircularRef: true, ref: '1669039721359479104' }
+//     ref: { __JSONCircularRef: '1669039721359479104' }
 //   },
-//   ref: '1669039721359479104',
-//   __isJSONCircularSource: true
+//   __JSONCircularSource: '1669039721359479104'
 // }
 
 
 const b = { prop: 'prop', circular: preString };
 
 console.log(JSON.stringify(b))
-// {"prop": "prop", "circular": {"value": {"prop": "value", "ref": {"__isJSONCircularRef": true, "ref": "1669039919146610182"}}, "ref": "1669039919146610182", "__isJSONCircularSource": true}}
+// {"prop": "prop", "circular": {"value": {"prop": "value", "ref": {"__JSONCircularRef": "1669039919146610182"}}, "__JSONCircularSource": "1669039919146610182"}}
 ```
