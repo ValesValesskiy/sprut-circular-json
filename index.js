@@ -9,7 +9,7 @@ function resolveCircular(object) {
 }
 
 function clearUseless(links, refs, usage) {
-    if (links && links.__JSONCircularSource) {
+    if (links instanceof Object && '__JSONCircularSource' in links) {
         for(let prop in links.value) {
             links.value[prop] = clearUseless(links.value[prop], refs, usage);
         }
@@ -24,7 +24,7 @@ function clearUseless(links, refs, usage) {
     }
 }
 
-function linked(object, refs = {}, usage = {}) {
+function linked(object, refs = {}, usage = {}, currentNodeAlias = '') {
     if (object instanceof Object) {
         for(let ref in refs) {
             if (object === refs[ref]) {
@@ -38,23 +38,19 @@ function linked(object, refs = {}, usage = {}) {
 
         const jsonDescriptor = {
             value: object instanceof Array ? [] : {},
-            __JSONCircularSource: createRefName()
+            __JSONCircularSource: currentNodeAlias
         };
 
         refs[jsonDescriptor.__JSONCircularSource] = object;
 
         for(let prop in object) {
-            jsonDescriptor.value[prop] = linked(object[prop], refs, usage)[0];
+            jsonDescriptor.value[prop] = linked(object[prop], refs, usage, `${currentNodeAlias}.${prop}`)[0];
         }
 
         return [jsonDescriptor, refs, usage];
     } else {
         return [object, refs, usage];
     }
-}
-
-function createRefName() {
-    return `${new Date().getTime()}${(Math.random() * 10).toFixed(0)}${(Math.random() * 10).toFixed(0)}${(Math.random() * 10).toFixed(0)}${(Math.random() * 10).toFixed(0)}${(Math.random() * 10).toFixed(0)}`;
 }
 
 function parse(str) {
@@ -68,7 +64,7 @@ function parse(str) {
 function restoreRefs(object) {
     const refs = {};
 
-    if (object && object.__JSONCircularSource) {
+    if (object instanceof Object && '__JSONCircularSource' in object) {
         refs[object.__JSONCircularSource] = object.value;
 
         for(let prop in object.value) {
@@ -85,9 +81,9 @@ function restoreObject(object, refs) {
             object[prop] = restoreObject(object[prop], refs);
         }
 
-        if (object.__JSONCircularRef) {
+        if ('__JSONCircularRef' in object) {
             return refs[object.__JSONCircularRef];
-        } else if (object.__JSONCircularSource) {
+        } else if ('__JSONCircularSource' in object) {
             return object.value;
         } else {
             return object;
