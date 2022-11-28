@@ -40,7 +40,7 @@ const str = CJSON.stringify(a);
 const copy_a = CJSON.parse(str);
 
 console.log(str);
-// {"value": {"prop": "value", "ref": {"__JSONCircularRef": "166903917458093014"}}, "__JSONCircularSource": "166903917458093014"}
+// {"value": {"prop": "value", "ref": {"__JSONCircularRef": ""}}, "__JSONCircularSource": ""}
 
 console.log(a); // <ref *1> { prop: 'value', ref: [Circular *1] }
 
@@ -72,14 +72,14 @@ console.log(preString);
 // {
 //   value: {
 //     prop: 'value',
-//     ref: { __JSONCircularRef: '1669039721359479104' }
+//     ref: { __JSONCircularRef: '' }
 //   },
-//   __JSONCircularSource: '1669039721359479104'
+//   __JSONCircularSource: ''
 // }
 
 
 const b = { prop: 'prop', circular: preString };
 
 console.log(JSON.stringify(b))
-// {"prop": "prop", "circular": {"value": {"prop": "value", "ref": {"__JSONCircularRef": "1669039919146610182"}}, "__JSONCircularSource": "1669039919146610182"}}
+// { "prop": "prop", "circular": { "value": { "prop": "value", "ref": { "__JSONCircularRef": "" } },"__JSONCircularSource": "" } }
 ```
