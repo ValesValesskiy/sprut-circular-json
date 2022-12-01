@@ -26,31 +26,33 @@ function clearUseless(links, refs, usage) {
 
 function linked(object, refs = {}, usage = {}, currentNodeAlias = '') {
     if (object instanceof Object) {
-        for(let ref in refs) {
-            if (object === refs[ref]) {
-                usage[ref] = true;
+        if (!(object instanceof Function)) {
+            for(let ref in refs) {
+                if (object === refs[ref]) {
+                    usage[ref] = true;
 
-                return [{
-                    __JSONCircularRef: ref
-                }, refs, usage];
+                    return [{
+                        __JSONCircularRef: ref
+                    }, refs, usage];
+                }
             }
+
+            const jsonDescriptor = {
+                value: object instanceof Array ? [] : {},
+                __JSONCircularSource: currentNodeAlias
+            };
+
+            refs[jsonDescriptor.__JSONCircularSource] = object;
+
+            for(let prop in object) {
+                jsonDescriptor.value[prop] = linked(object[prop], refs, usage, `${currentNodeAlias}.${prop}`)[0];
+            }
+
+            return [jsonDescriptor, refs, usage];
         }
-
-        const jsonDescriptor = {
-            value: object instanceof Array ? [] : {},
-            __JSONCircularSource: currentNodeAlias
-        };
-
-        refs[jsonDescriptor.__JSONCircularSource] = object;
-
-        for(let prop in object) {
-            jsonDescriptor.value[prop] = linked(object[prop], refs, usage, `${currentNodeAlias}.${prop}`)[0];
-        }
-
-        return [jsonDescriptor, refs, usage];
-    } else {
-        return [object, refs, usage];
     }
+
+    return [object, refs, usage];
 }
 
 function parse(str) {
@@ -64,11 +66,17 @@ function parse(str) {
 function restoreRefs(object) {
     const refs = {};
 
-    if (object instanceof Object && '__JSONCircularSource' in object) {
-        refs[object.__JSONCircularSource] = object.value;
+    if (object instanceof Object) {
+        if ('__JSONCircularSource' in object) {
+            refs[object.__JSONCircularSource] = object.value;
 
-        for(let prop in object.value) {
-            Object.assign(refs, restoreRefs(object.value[prop]));
+            for(let prop in object.value) {
+                Object.assign(refs, restoreRefs(object.value[prop]));
+            }
+        } else {
+            for(let prop in object) {
+                Object.assign(refs, restoreRefs(object[prop]));
+            }
         }
     }
 
